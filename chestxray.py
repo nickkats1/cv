@@ -59,8 +59,10 @@ for features,labels in data:
 le = LabelEncoder()
 
 
+X = np.array(X,dtype='float32') / 255.0
+X = X.reshape(-1,image_size,image_size,1)
+y = np.array(y)
 y = le.fit_transform(y)
-
 
 
 
@@ -68,19 +70,32 @@ y = le.fit_transform(y)
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
 
 
-X_train = np.array(X_train,dtype='float32') / 255.0
-X_test = np.array(X_test,dtype='float32') / 255.0
+index = np.random.choice(np.arange(len(X_train)),24,replace=False)
 
-y_train = np.array(y_train,dtype='int64')
-y_test = np.array(y_test,dtype='int64')
+fig,axs = plt.subplots(4,6,figsize=(20,10))
 
-X_train = X_train.reshape((-1,image_size,image_size,1))
-X_test = X_test.reshape((-1,image_size,image_size,1))
-X_train.shape,X_test.shape
+for item in zip(axs.ravel(),X_train[index],y_train[index]):
+    axs,image,target = item
+    axs.imshow(image,plt.cm.gray_r)
+    axs.set_xticks([])
+    axs.set_yticks([])
+    axs.set_title(target)
+
+
+plt.tight_layout()
+plt.show()
+
 
 
 y_train = to_categorical(y_train,num_classes=4)
 y_test = to_categorical(y_test,num_classes=4)
+
+
+
+X_train.shape,X_test.shape
+
+
+
 
 
 
@@ -98,17 +113,24 @@ CNN.add(MaxPooling2D(pool_size=(2,2)))
 CNN.add(Conv2D(filters=128,activation='relu',kernel_size=(3,3)))
 CNN.add(BatchNormalization())
 CNN.add(MaxPooling2D(pool_size=(2,2)))
+
+
+CNN.add(Conv2D(filters=256,activation='relu',kernel_size=(3,3)))
+CNN.add(BatchNormalization())
+CNN.add(MaxPooling2D(pool_size=(2,2)))
 CNN.add(Flatten())
+
 
 CNN.add(Dense(512,activation='relu'))
 CNN.add(Dense(4,activation='softmax'))
 CNN.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
-history = CNN.fit(X_train,y_train,epochs=10,batch_size=32,validation_split=0.2)
+history = CNN.fit(X_train,y_train,epochs=10,batch_size=32,validation_split=0.1)
 loss,acc = CNN.evaluate(X_test,y_test)
 pred = CNN.predict(X_test)
 loss,acc = CNN.evaluate(X_test,y_test)
 print(f'testing loss: {loss*100:.2f}%')
 print(f'testing accuracy: {acc*100:.2f}%')
+
 
 
 
@@ -135,6 +157,7 @@ def plot_confusion_matrix(y_test,y_pred):
 plt.figure(figsize=(10,6))
 plot_confusion_matrix(y_test, y_pred)
 plt.show()
+
 
 
 
