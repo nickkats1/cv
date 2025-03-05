@@ -138,16 +138,3 @@ with torch.no_grad():
         print('Test Accuracy : {} %'.format(100 * correct / total))
 
 
-
-model.eval()
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for images,labels in test_dataloader:
-        images,labels = images.to(device),labels.to(device)
-        outputs = model(images)
-        _,preds = torch.max(outputs.data,1)
-        total += labels.size(0)
-        correct += torch.sum(preds == labels).sum().item()
-        print('Test Accuracy : {} %'.format(100 * correct / total))
-
