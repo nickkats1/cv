@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torchvision import transforms,datasets,models
+from torchvision import transforms,datasets
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -72,7 +72,7 @@ plt.show()
 
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self,n_classes=3):
         super(Net,self).__init__()
         self.con1 = nn.Conv2d(3, 32,kernel_size=3,padding=1)
         self.bn1 = nn.BatchNorm2d(32)
@@ -86,23 +86,22 @@ class Net(nn.Module):
         self.bn3 = nn.BatchNorm2d(128)
         self.pool3 = nn.MaxPool2d(2,2)
         
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(32*32*128, out_features=2),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            )
-        
-        
+        self.flatten = nn.Flatten()
+        self.fc1 = nn.Linear(32*32*128,512)
+        self.fc2 = nn.Linear(512,n_classes)
+
+
     def forward(self,x):
         x = self.pool1(F.relu(self.bn1(self.con1(x))))
         x = self.pool2(F.relu(self.bn2(self.con2(x))))
         x = self.pool3(F.relu(self.bn3(self.con3(x))))
-        x = self.classifier(x)
+        x = self.flatten(x)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
         return x
 
 
-model = Net()
+model = Net(n_classes=3)
 model.to(device)
 
 
@@ -136,5 +135,3 @@ with torch.no_grad():
         total += labels.size(0)
         correct += torch.sum(preds == labels).sum().item()
         print('Test Accuracy : {} %'.format(100 * correct / total))
-
-
