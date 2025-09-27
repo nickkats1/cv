@@ -180,12 +180,11 @@ print(F"Testing Accuracy: {test_acc:.2f}%")
 
 
 
-"""Classification Report"""
+
 clf_rpt = classification_report(y_test,y_pred)
 print(f"Classification Report: {clf_rpt}")
 
 
-"""Roc/Auc score and curves"""
 
 
 print("ROC/AUC score from resnet18 model\n")
